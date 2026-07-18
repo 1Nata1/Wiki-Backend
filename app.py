@@ -95,14 +95,14 @@ def serve_api_config():
     return app.send_static_file("api.js")
 
 
+@app.route("/style.css")
+def serve_login_style():
+    return app.send_static_file("Login/style.css")
+
+
 @app.route("/Style.css")
 def serve_wiki_style():
     return app.send_static_file("Wiki/Style.css")
-
-
-@app.route("/Login/style.css")
-def serve_login_style():
-    return app.send_static_file("Login/style.css")
 
 
 @app.route("/Imagens/<path:filename>")
