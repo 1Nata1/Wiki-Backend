@@ -102,6 +102,11 @@ def add_no_cache(response):
     return response
 
 
+@app.route("/wiki-api.js")
+def serve_wiki_api():
+    return app.send_static_file("wiki-api.js")
+
+
 @app.route("/api.js")
 def serve_api_config():
     return app.send_static_file("api.js")
