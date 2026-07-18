@@ -9,7 +9,7 @@ from flask_cors import CORS
 
 FRONTEND_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend")
 app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path="")
-CORS(app, resources={r"/api/*": {"origins": "*", "supports_credentials": true}})
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 
 # Serve páginas estáticas do frontend
