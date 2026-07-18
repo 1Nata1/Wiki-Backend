@@ -108,8 +108,10 @@
 
         // Botão sair
         document.getElementById("btnSair").addEventListener("click", function () {
-          clearSession();
-          window.location.href = "../Login/";
+          // Remove TUDO relacionado à wiki
+          localStorage.clear();
+          sessionStorage.clear();
+          window.location.href = "/login";
         });
       })();
     </script>
