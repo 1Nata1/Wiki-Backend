@@ -78,11 +78,19 @@
 
       <div class="perfil-botoes">
         <a href="index.html" class="perfil-btn voltar">Voltar</a>
-        <button class="perfil-btn sair" id="btnSair">Sair da conta</button>
+        <button class="perfil-btn sair" id="btnSair" onclick="sairDaConta()">Sair da conta</button>
       </div>
     </div>
 
     <script>
+      // Função global de logout (chamada pelo onclick)
+      function sairDaConta() {
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.replace("/login");
+        return false;
+      }
+
       (async function() {
         if (!isLogado()) {
           window.location.href = "/login";
