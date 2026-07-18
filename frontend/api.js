@@ -1,10 +1,7 @@
 // Configuração da API
-// Usa URL relativa para funcionar em qualquer domínio
-const API_BASE = window.location.protocol + "//" + window.location.host;
-const API_URL = API_BASE + "/api";
+// URL relativa - funciona no mesmo domínio
+const API_URL = "/api";
 console.log("[Wiki] API_URL:", API_URL);
-console.log("[Wiki] Origin:", window.location.origin);
-console.log("[Wiki] Host:", window.location.host);
 
 function getToken() {
     return localStorage.getItem("wikiToken") || sessionStorage.getItem("wikiToken");
