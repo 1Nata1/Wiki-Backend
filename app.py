@@ -110,6 +110,11 @@ def serve_wiki_images(filename):
     return app.send_static_file(f"Wiki/Imagens/{filename}")
 
 
+@app.route("/Login/stardew-valley-2560-x-1440-background-gkvzx4cplgse4ymy.jpg")
+def serve_login_bg():
+    return app.send_static_file("Login/stardew-valley-2560-x-1440-background-gkvzx4cplgse4ymy.jpg")
+
+
 # ===================== TOKEN HELPER =====================
 
 def gerar_token(usuario_id, username):
