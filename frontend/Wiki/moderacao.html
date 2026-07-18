@@ -111,27 +111,26 @@
 
           if (pendentes.length === 0) {
             lista.innerHTML = '<p class="vazia-msg">Nenhum comentário pendente.</p>';
-            return;
-          }
+          } else {
+            let html = "";
+            for (const c of pendentes) {
+              const data = new Date(c.criado_em);
+              const dataStr = data.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" });
 
-          let html = "";
-          for (const c of pendentes) {
-            const data = new Date(c.criado_em);
-            const dataStr = data.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" });
-
-            html += `<div class="comentario-item pendente">
-              <div class="comentario-header">
-                <span class="comentario-autor">${c.nome || c.username} <span class="pendente-badge">Pendente</span></span>
-                <span class="comentario-data">${dataStr}</span>
-              </div>
-              <div class="comentario-texto">${c.texto.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
-              <div class="comentario-acoes">
-                <button class="comentario-btn aprovar" onclick="aprovar(${c.id})">✓ Aprovar</button>
-                <button class="comentario-btn excluir" onclick="excluir(${c.id})">✗ Excluir</button>
-              </div>
-            </div>`;
+              html += `<div class="comentario-item pendente">
+                <div class="comentario-header">
+                  <span class="comentario-autor">${c.nome || c.username} <span class="pendente-badge">Pendente</span></span>
+                  <span class="comentario-data">${dataStr}</span>
+                </div>
+                <div class="comentario-texto">${c.texto.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+                <div class="comentario-acoes">
+                  <button class="comentario-btn aprovar" onclick="aprovar(${c.id})">✓ Aprovar</button>
+                  <button class="comentario-btn excluir" onclick="excluir(${c.id})">✗ Excluir</button>
+                </div>
+              </div>`;
+            }
+            lista.innerHTML = html;
           }
-          lista.innerHTML = html;
 
         } catch (err) {
           lista.innerHTML = '<p class="vazia-msg" style="color:#ef5350;">Erro ao carregar comentários.</p>';
