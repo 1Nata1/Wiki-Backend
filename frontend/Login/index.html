@@ -81,7 +81,8 @@
             loginError.style.display = "block";
           }
         } catch (err) {
-          loginError.textContent = "Erro de conexão com o servidor!";
+          console.error("[LOGIN ERROR]", err);
+          loginError.textContent = "Erro de conexão: " + (err.message || err);
           loginError.style.display = "block";
         } finally {
           btnEntrar.disabled = false;
