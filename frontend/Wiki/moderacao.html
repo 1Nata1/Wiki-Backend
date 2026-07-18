@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/Style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="/api.js"></script>
+    <title>Moderação - Wiki</title>
+    <style>
+      .container.mod-container { max-width: 700px; }
+      .mod-titulo { text-align: center; margin-bottom: 6px; color: white; font-size: 26px; border: none !important; }
+      .mod-sub { text-align: center; color: rgba(255,255,255,0.5); font-size: 14px; margin-bottom: 24px; }
+      .mod-stat { text-align: center; color: rgba(255,255,255,0.6); margin-bottom: 20px; font-size: 15px; }
+      .mod-stat span { color: #ffc107; font-weight: 700; }
+
+      .comentario-item.pendente { border-color: rgba(255, 193, 7, 0.3); background: rgba(255, 193, 7, 0.04); }
+      .comentario-item { background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 14px; padding: 16px 18px; margin-bottom: 12px; }
+      .comentario-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 4px; }
+      .comentario-autor { font-weight: 600; color: #81c784; font-size: 14px; }
+      .comentario-data { font-size: 12px; color: rgba(255, 255, 255, 0.35); }
+      .comentario-texto { font-size: 15px; color: rgba(255, 255, 255, 0.9); line-height: 1.6; word-wrap: break-word; }
+      .comentario-acoes { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+      .comentario-btn { padding: 5px 14px; border: none; border-radius: 8px; font-size: 13px; cursor: pointer; transition: 0.2s; font-weight: 600; }
+      .comentario-btn.aprovar { background: rgba(76, 175, 80, 0.25); color: #81c784; }
+      .comentario-btn.aprovar:hover { background: rgba(76, 175, 80, 0.4); }
+      .comentario-btn.excluir { background: rgba(229, 57, 53, 0.2); color: #ef9a9a; }
+      .comentario-btn.excluir:hover { background: rgba(229, 57, 53, 0.35); }
+      .mod-badge { background: #4caf50; color: white; font-size: 10px; padding: 1px 7px; border-radius: 10px; font-weight: 600; margin-left: 4px; }
+      .pendente-badge { background: #ffc107; color: #333; font-size: 10px; padding: 1px 7px; border-radius: 10px; font-weight: 600; margin-left: 4px; }
+      .vazia-msg { color: rgba(255,255,255,0.4); text-align: center; padding: 30px 0; }
+      .header-bar { border-bottom: 2px solid rgba(76, 175, 80, 0.4); padding-bottom: 12px; }
+      .header-top { display: flex; justify-content: space-between; align-items: center; }
+      .header-top h1 b { font-size: 26px; color: white; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); }
+      .user-btn { display: flex; align-items: center; gap: 8px; text-decoration: none; color: white; background: rgba(76, 175, 80, 0.25); padding: 8px 16px; border-radius: 25px; border: 1px solid rgba(76, 175, 80, 0.4); transition: background 0.3s; font-size: 14px; }
+      .user-btn:hover { background: rgba(76, 175, 80, 0.5); }
+      .user-btn i { font-size: 22px; color: #81c784; }
+    </style>
+  </head>
+  <body>
+    <div class="container mod-container">
+      <div class="header-bar">
+        <div class="header-top">
+          <h1><b>Moderação</b></h1>
+          <a href="index.html" class="user-btn" title="Voltar">
+            <i class="bx bxs-home"></i>
+            <span>Voltar</span>
+          </a>
+        </div>
+      </div>
+
+      <h2 class="mod-titulo">Comentários Pendentes</h2>
+      <p class="mod-sub">Aprovar ou excluir comentários aguardando revisão</p>
+      <p class="mod-stat" id="modStat">Carregando...</p>
+
+      <div class="comentarios-lista" id="modLista">
+        <p class="vazia-msg">Carregando...</p>
+      </div>
+    </div>
+
+    <script>
+      (async function() {
+        if (!isLogado()) {
+          window.location.href = "/login";
+          return;
+        }
+
+        const stat = document.getElementById("modStat");
+        const lista = document.getElementById("modLista");
+
+        try {
+          const result = await apiGetComentarios("wendy");
+          const comentarios = result.comentarios || [];
+          const pendentes = comentarios.filter(c => c.status === "pendente");
+
+          if (pendentes.length === 0) {
+            stat.innerHTML = 'Nenhum comentário pendente ✅';
+            stat.style.color = '#81c784';
+          } else {
+            stat.innerHTML = `<span>${pendentes.length}</span> comentário(s) aguardando aprovação`;
+          }
+
+          if (pendentes.length === 0) {
+            lista.innerHTML = '<p class="vazia-msg">Nenhum comentário pendente.</p>';
+            return;
+          }
+
+          let html = "";
+          for (const c of pendentes) {
+            const data = new Date(c.criado_em);
+            const dataStr = data.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" });
+
+            html += `<div class="comentario-item pendente">
+              <div class="comentario-header">
+                <span class="comentario-autor">${c.nome || c.username} <span class="pendente-badge">Pendente</span></span>
+                <span class="comentario-data">${dataStr}</span>
+              </div>
+              <div class="comentario-texto">${c.texto.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+              <div class="comentario-acoes">
+                <button class="comentario-btn aprovar" onclick="aprovar(${c.id})">✓ Aprovar</button>
+                <button class="comentario-btn excluir" onclick="excluir(${c.id})">✗ Excluir</button>
+              </div>
+            </div>`;
+          }
+          lista.innerHTML = html;
+
+        } catch (err) {
+          lista.innerHTML = '<p class="vazia-msg" style="color:#ef5350;">Erro ao carregar comentários.</p>';
+          console.error(err);
+        }
+      })();
+
+      async function aprovar(id) {
+        try {
+          const result = await apiAprovarComentario(id);
+          if (result.success) location.reload();
+          else alert(result.error || "Erro ao aprovar");
+        } catch (err) {
+          alert("Erro de conexão!");
+        }
+      }
+
+      async function excluir(id) {
+        if (!confirm("Excluir este comentário?")) return;
+        try {
+          const result = await apiExcluirComentario(id);
+          if (result.success) location.reload();
+          else alert(result.error || "Erro ao excluir");
+        } catch (err) {
+          alert("Erro de conexão!");
+        }
+      }
+    </script>
+  </body>
+</html>
