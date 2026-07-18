@@ -1,9 +1,10 @@
 // Configuração da API
-// Altere esta URL quando fizer deploy do backend
-const API_URL = window.location.origin + "/api";
+// Usa URL relativa para funcionar em qualquer domínio
+const API_BASE = window.location.protocol + "//" + window.location.host;
+const API_URL = API_BASE + "/api";
 console.log("[Wiki] API_URL:", API_URL);
-console.log("[Wiki] isLogado:", !!getToken());
-console.log("[Wiki] username:", getUsername());
+console.log("[Wiki] Origin:", window.location.origin);
+console.log("[Wiki] Host:", window.location.host);
 
 function getToken() {
     return localStorage.getItem("wikiToken") || sessionStorage.getItem("wikiToken");
