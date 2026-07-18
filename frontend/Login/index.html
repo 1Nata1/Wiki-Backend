@@ -62,7 +62,7 @@
 
       // Verifica se já está logado (pela API)
       if (isLogado()) {
-        window.location.href = "../Wiki/";
+        window.location.href = "/Wiki/";
       }
 
       loginForm.addEventListener("submit", async (e) => {
@@ -82,7 +82,7 @@
 
           if (result.success) {
             setSession(result.token, result.user.username, result.user.nome, remember);
-            window.location.href = "../Wiki/";
+            window.location.href = "/Wiki/";
           } else {
             loginError.textContent = result.error || "Usuário ou senha incorretos!";
             loginError.style.display = "block";
