@@ -30,7 +30,7 @@
   </head>
   <body>
     <main class="container">
-      <form id="loginForm">
+      <form id="loginForm" onsubmit="return handleLogin(event)">
         <h1>Login</h1>
         <div class="input-box">
           <input id="username" placeholder="Usuário ou email" type="text" required />
@@ -56,24 +56,17 @@
     </main>
 
     <script>
-      const loginForm = document.getElementById("loginForm");
-      const loginError = document.getElementById("loginError");
-      const btnEntrar = document.getElementById("btnEntrar");
+      async function handleLogin(e) {
+        if (e) e.preventDefault();
+        const loginError = document.getElementById("loginError");
+        const btnEntrar = document.getElementById("btnEntrar");
 
-      // Verifica se já está logado (pela API)
-      if (isLogado()) {
-        window.location.href = "/Wiki/";
-      }
-
-      loginForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
         loginError.style.display = "none";
 
         const username = document.getElementById("username").value.trim();
         const password = document.getElementById("password").value;
         const remember = document.getElementById("remember").checked;
 
-        // Desabilita botão
         btnEntrar.disabled = true;
         btnEntrar.innerHTML = '<span class="loading-spinner"></span> Entrando...';
 
@@ -94,7 +87,14 @@
           btnEntrar.disabled = false;
           btnEntrar.textContent = "Entrar";
         }
-      });
+
+        return false;
+      }
+
+      // Verifica se já está logado
+      if (isLogado()) {
+        window.location.href = "/Wiki/";
+      }
     </script>
   </body>
 </html>
