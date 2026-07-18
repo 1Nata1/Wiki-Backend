@@ -4,7 +4,7 @@ import hashlib
 import secrets
 import json
 from datetime import datetime, timedelta
-from flask import Flask, request, jsonify, g
+from flask import Flask, request, jsonify, g, redirect
 from flask_cors import CORS
 
 FRONTEND_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend")
@@ -12,14 +12,16 @@ app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path="")
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 
-# Serve páginas estáticas do frontend (SPA fallback)
+# Serve páginas estáticas do frontend
 @app.route("/")
 def serve_root():
-    return app.send_static_file("Login/index.html")
+    # Redireciona pra página de login
+    return redirect("/login")
 
 
-@app.route("/Login/")
+@app.route("/login")
 @app.route("/Login")
+@app.route("/Login/")
 def serve_login():
     return app.send_static_file("Login/index.html")
 
@@ -88,6 +90,16 @@ def init_db():
         );
     """)
     db.commit()
+
+
+@app.after_request
+def add_no_cache(response):
+    # Evitar cache das páginas HTML
+    if response.content_type and "text/html" in response.content_type:
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    return response
 
 
 @app.route("/api.js")
