@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css?v=4" />
+    <title>Login - Wiki</title>
+  </head>
+  <body>
+    <main class="container">
+      <form id="loginForm">
+        <h1>Login</h1>
+        <div class="input-box">
+          <input id="username" placeholder="Usuário ou email" type="text" required />
+          <i class="bx bxs-user"></i>
+        </div>
+        <div class="input-box">
+          <input id="password" placeholder="Senha" type="password" required />
+          <i class="bx bxs-lock-alt"></i>
+        </div>
+        <div id="loginError" style="color: #ef5350; text-align: center; margin-bottom: 10px; display: none;">
+          Usuário ou senha incorretos!
+        </div>
+        <div class="Lembrar">
+          <label>
+            <input type="checkbox" id="remember" />
+            Lembrar login
+          </label>
+          <a href="#" style="pointer-events: none; opacity: 0.5;">Esqueci a senha</a>
+        </div>
+        <button type="submit" class="LoginBtn">Entrar</button>
+        <div class="Cadastro">
+          <p>Não tem uma conta? <a href="https://1Nata1.github.io/Login/cadastro.html">Cadastre-se</a></p>
+        </div>
+      </form>
+    </main>
+
+    <script>
+      const loginForm = document.getElementById("loginForm");
+      const loginError = document.getElementById("loginError");
+
+      // Verifica se já está logado
+      if (localStorage.getItem("wikiLogado") === "true") {
+        window.location.href = "https://1Nata1.github.io/Wiki/";
+      }
+
+      loginForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value;
+
+        // Carrega usuários cadastrados
+        let usuarios = [];
+        try {
+          const saved = localStorage.getItem("wikiUsuarios");
+          if (saved) usuarios = JSON.parse(saved);
+        } catch (e) {
+          usuarios = [];
+        }
+
+        // Procura o usuário por username ou email
+        const user = usuarios.find(
+          u => (u.username.toLowerCase() === username.toLowerCase() || u.email.toLowerCase() === username.toLowerCase())
+        );
+
+        if (user && user.password === password) {
+          // Login bem-sucedido
+          if (document.getElementById("remember").checked) {
+            localStorage.setItem("wikiLogado", "true");
+            localStorage.setItem("wikiUsuario", user.username);
+            localStorage.setItem("wikiUsuarioNome", user.nome);
+          } else {
+            sessionStorage.setItem("wikiLogado", "true");
+            sessionStorage.setItem("wikiUsuario", user.username);
+            sessionStorage.setItem("wikiUsuarioNome", user.nome);
+          }
+          window.location.href = "https://1Nata1.github.io/Wiki/";
+        } else {
+          loginError.style.display = "block";
+        }
+      });
+    </script>
+  </body>
+</html>

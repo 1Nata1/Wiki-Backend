@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css?v=2" />
+    <title>Cadastro - Wiki</title>
+  </head>
+  <body>
+    <main class="container">
+      <form id="cadastroForm">
+        <h1>Criar Conta</h1>
+
+        <div class="input-box">
+          <input id="nome" placeholder="Nome completo" type="text" required />
+          <i class="bx bxs-user"></i>
+        </div>
+
+        <div class="input-box">
+          <input id="username" placeholder="Usuário" type="text" required />
+          <i class="bx bxs-user-account"></i>
+        </div>
+
+        <div class="input-box">
+          <input id="email" placeholder="Email" type="email" required />
+          <i class="bx bxs-envelope"></i>
+        </div>
+
+        <div class="input-box">
+          <input id="password" placeholder="Senha" type="password" required />
+          <i class="bx bxs-lock-alt"></i>
+        </div>
+
+        <div class="input-box">
+          <input id="confirmPassword" placeholder="Confirmar senha" type="password" required />
+          <i class="bx bxs-lock"></i>
+        </div>
+
+        <div id="cadastroError" style="color: #ef5350; text-align: center; margin-bottom: 8px; display: none;">
+        </div>
+
+        <div id="cadastroSuccess" style="color: #66bb6a; text-align: center; margin-bottom: 8px; display: none;">
+        </div>
+
+        <button type="submit" class="LoginBtn">Criar Conta</button>
+
+        <div class="Cadastro">
+          <p>Já tem uma conta? <a href="https://1Nata1.github.io/Login/">Fazer login</a></p>
+        </div>
+      </form>
+    </main>
+
+    <script>
+      const form = document.getElementById("cadastroForm");
+      const errorDiv = document.getElementById("cadastroError");
+      const successDiv = document.getElementById("cadastroSuccess");
+
+      // Se já estiver logado, vai direto pra wiki
+      if (localStorage.getItem("wikiLogado") === "true") {
+        window.location.href = "https://1Nata1.github.io/Wiki/";
+      }
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const nome = document.getElementById("nome").value.trim();
+        const username = document.getElementById("username").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+        const confirmPassword = document.getElementById("confirmPassword").value;
+
+        errorDiv.style.display = "none";
+        successDiv.style.display = "none";
+
+        // Validações
+        if (password !== confirmPassword) {
+          errorDiv.textContent = "As senhas não conferem!";
+          errorDiv.style.display = "block";
+          return;
+        }
+
+        if (password.length < 4) {
+          errorDiv.textContent = "A senha deve ter pelo menos 4 caracteres!";
+          errorDiv.style.display = "block";
+          return;
+        }
+
+        if (username.length < 3) {
+          errorDiv.textContent = "O usuário deve ter pelo menos 3 caracteres!";
+          errorDiv.style.display = "block";
+          return;
+        }
+
+        // Carrega usuários existentes
+        let usuarios = [];
+        try {
+          const saved = localStorage.getItem("wikiUsuarios");
+          if (saved) usuarios = JSON.parse(saved);
+        } catch (e) {
+          usuarios = [];
+        }
+
+        // Verifica se usuário já existe
+        if (usuarios.find(u => u.username.toLowerCase() === username.toLowerCase())) {
+          errorDiv.textContent = "Este usuário já existe! Escolha outro.";
+          errorDiv.style.display = "block";
+          return;
+        }
+
+        // Verifica se email já existe
+        if (usuarios.find(u => u.email.toLowerCase() === email.toLowerCase())) {
+          errorDiv.textContent = "Este email já está cadastrado!";
+          errorDiv.style.display = "block";
+          return;
+        }
+
+        // Salva novo usuário
+        const novoUsuario = {
+          nome,
+          username,
+          email,
+          password
+        };
+
+        usuarios.push(novoUsuario);
+        localStorage.setItem("wikiUsuarios", JSON.stringify(usuarios));
+
+        // Mostra sucesso
+        successDiv.textContent = "Conta criada com sucesso! Redirecionando para o login...";
+        successDiv.style.display = "block";
+        form.querySelector("button").disabled = true;
+
+        // Redireciona pro login após 2 segundos
+        setTimeout(() => {
+          window.location.href = "https://1Nata1.github.io/Login/";
+        }, 2000);
+      });
+    </script>
+  </body>
+</html>
