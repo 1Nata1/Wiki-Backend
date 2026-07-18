@@ -78,14 +78,23 @@
         if (isLogado()) {
           try {
             const result = await apiGetUser();
-            if (result.user?.moderador) {
+            const isMod = result.user?.moderador || getUsername() === "Nata";
+            if (isMod) {
               const modIcon = document.getElementById("modIcon");
               if (modIcon) {
                 modIcon.style.display = "inline";
                 modIcon.addEventListener("click", (e) => { e.preventDefault(); window.location.href = "/Wiki/moderacao.html"; });
               }
             }
-          } catch(e) {}
+          } catch(e) {
+            // Fallback: se o Nata estiver logado, mostra o escudo mesmo com erro na API
+            if (getUsername() === "Nata") {
+              const modIcon = document.getElementById("modIcon");
+              if (modIcon) { modIcon.style.display = "inline";
+                modIcon.addEventListener("click", (e) => { e.preventDefault(); window.location.href = "/Wiki/moderacao.html"; });
+              }
+            }
+          }
         }
       })();
     </script>

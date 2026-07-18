@@ -404,11 +404,15 @@
         // Carrega comentários
         await carregarComentarios();
 
-        // Ícone de moderação
+        // Ícone de moderação - verifica tanto pela API quanto pelo username
         const modIcon = document.getElementById("modIcon");
-        if (modIcon && podeModerar) {
-          modIcon.style.display = "inline";
-          modIcon.addEventListener("click", (e) => { e.preventDefault(); window.location.href = "/Wiki/moderacao.html"; });
+        const userLogado = getUsername();
+        if (modIcon) {
+          // Se já sabemos pela API que é moderador, ou se for o Nata (fallback)
+          if (podeModerar || userLogado === "Nata") {
+            modIcon.style.display = "inline";
+            modIcon.addEventListener("click", (e) => { e.preventDefault(); window.location.href = "/Wiki/moderacao.html"; });
+          }
         }
       });
 
