@@ -66,6 +66,25 @@
       <div class="comentarios-lista" id="modLista">
         <p class="vazia-msg">Carregando...</p>
       </div>
+
+      <!-- === GERENCIAR MODERADORES === -->
+      <h2 class="mod-titulo" style="margin-top:40px;border-top:2px solid rgba(76,175,80,0.4);padding-top:30px;">Gerenciar Moderadores</h2>
+      <p class="mod-sub">Promover usuários ou rebaixar moderadores</p>
+
+      <div id="moderadoresArea">
+        <p class="vazia-msg" id="moderadoresLoading">Carregando...</p>
+        <div id="moderadoresLista" style="display:none;"></div>
+
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.1);">
+          <p style="color:rgba(255,255,255,0.6);font-size:14px;margin-bottom:10px;">Promover usuário:</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <select id="selectUsuario" style="flex:1;min-width:150px;background:rgba(255,255,255,0.08);border:2px solid rgba(76,175,80,0.4);border-radius:10px;color:white;padding:10px 14px;font-size:14px;outline:none;">
+              <option value="">— Selecione um usuário —</option>
+            </select>
+            <button class="comentario-btn aprovar" onclick="promoverUsuario()" style="padding:10px 20px;font-size:14px;">✓ Promover</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script>
@@ -118,7 +137,75 @@
           lista.innerHTML = '<p class="vazia-msg" style="color:#ef5350;">Erro ao carregar comentários.</p>';
           console.error(err);
         }
+
+        // === Carregar moderadores e usuários ===
+        carregarModeradores();
       })();
+
+      async function carregarModeradores() {
+        try {
+          const modsResult = await fetch(`/api/moderadores?token=${getToken()}`);
+          const mods = (await modsResult.json()).moderadores || [];
+
+          const usersResult = await fetch(`/api/usuarios?token=${getToken()}`);
+          const users = (await usersResult.json()).usuarios || [];
+
+          // Lista de moderadores atuais
+          const modList = document.getElementById("moderadoresLista");
+          const loading = document.getElementById("moderadoresLoading");
+
+          if (mods.length === 0) {
+            modList.innerHTML = '<p class="vazia-msg">Nenhum moderador cadastrado.</p>';
+          } else {
+            let html = "";
+            for (const m of mods) {
+              html += `<div class="comentario-item" style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                  <span style="color:white;font-weight:600;">${m.nome}</span>
+                  <span style="color:rgba(255,255,255,0.5);font-size:13px;margin-left:8px;">@${m.username}</span>
+                  <span class="mod-badge">Mod</span>
+                </div>
+                <button class="comentario-btn excluir" onclick="rebaixar(${m.id})" style="font-size:12px;">Rebaixar</button>
+              </div>`;
+            }
+            modList.innerHTML = html;
+          }
+          modList.style.display = "block";
+          loading.style.display = "none";
+
+          // Preencher select com usuários não-moderadores
+          const select = document.getElementById("selectUsuario");
+          const existingModIds = new Set(mods.map(m => m.id));
+          select.innerHTML = '<option value="">— Selecione um usuário —</option>';
+          for (const u of users) {
+            if (!existingModIds.has(u.id)) {
+              select.innerHTML += `<option value="${u.id}">${u.nome} (@${u.username})</option>`;
+            }
+          }
+        } catch (err) {
+          document.getElementById("moderadoresLoading").textContent = "Erro ao carregar.";
+        }
+      }
+
+      async function promoverUsuario() {
+        const select = document.getElementById("selectUsuario");
+        const id = select.value;
+        if (!id) { alert("Selecione um usuário!"); return; }
+        try {
+          const result = await apiPromoverModerador(parseInt(id));
+          if (result.success) { alert("Usuário promovido!"); location.reload(); }
+          else alert(result.error || "Erro!");
+        } catch (err) { alert("Erro de conexão!"); }
+      }
+
+      async function rebaixar(id) {
+        if (!confirm("Rebaixar este moderador?")) return;
+        try {
+          const result = await apiRebaixarModerador(id);
+          if (result.success) { alert("Moderador rebaixado!"); location.reload(); }
+          else alert(result.error || "Erro!");
+        } catch (err) { alert("Erro de conexão!"); }
+      }
 
       async function aprovar(id) {
         try {

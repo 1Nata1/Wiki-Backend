@@ -97,3 +97,26 @@ async function apiExcluirComentario(id) {
     });
     return await res.json();
 }
+
+async function apiListarUsuarios() {
+    const res = await fetch(`${API_URL}/usuarios?token=${getToken()}`, { headers: getHeaders() });
+    return await res.json();
+}
+
+async function apiPromoverModerador(usuarioId) {
+    const res = await fetch(`${API_URL}/usuarios/${usuarioId}/promover`, {
+        method: "PUT",
+        headers: getHeaders(),
+        body: JSON.stringify({ token: getToken() })
+    });
+    return await res.json();
+}
+
+async function apiRebaixarModerador(usuarioId) {
+    const res = await fetch(`${API_URL}/usuarios/${usuarioId}/rebaixar`, {
+        method: "PUT",
+        headers: getHeaders(),
+        body: JSON.stringify({ token: getToken() })
+    });
+    return await res.json();
+}

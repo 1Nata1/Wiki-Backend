@@ -492,6 +492,67 @@ def listar_moderadores():
     return jsonify({"moderadores": [dict(m) for m in mods]})
 
 
+@app.route("/api/usuarios", methods=["GET"])
+def listar_usuarios():
+    """Lista todos os usuários (só moderador)"""
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    if not token:
+        token = request.args.get("token", "")
+
+    user = verificar_token(token)
+    if not user or not user["moderador"]:
+        return jsonify({"error": "Não autorizado!"}), 403
+
+    db = get_db()
+    usuarios = db.execute(
+        "SELECT id, nome, username, email, moderador FROM usuarios ORDER BY nome"
+    ).fetchall()
+
+    return jsonify({"usuarios": [dict(u) for u in usuarios]})
+
+
+@app.route("/api/usuarios/<int:usuario_id>/promover", methods=["PUT"])
+def promover_moderador(usuario_id):
+    """Promove um usuário a moderador"""
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    if not token:
+        data = request.get_json() or {}
+        token = data.get("token", "")
+
+    user = verificar_token(token)
+    if not user or not user["moderador"]:
+        return jsonify({"error": "Não autorizado!"}), 403
+
+    db = get_db()
+    db.execute("UPDATE usuarios SET moderador = 1 WHERE id = ?", (usuario_id,))
+    db.commit()
+
+    return jsonify({"success": True, "message": "Usuário promovido a moderador!"})
+
+
+@app.route("/api/usuarios/<int:usuario_id>/rebaixar", methods=["PUT"])
+def rebaixar_moderador(usuario_id):
+    """Rebaixa um moderador a usuário comum"""
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    if not token:
+        data = request.get_json() or {}
+        token = data.get("token", "")
+
+    user = verificar_token(token)
+    if not user or not user["moderador"]:
+        return jsonify({"error": "Não autorizado!"}), 403
+
+    # Não pode rebaixar a si mesmo
+    if user["id"] == usuario_id:
+        return jsonify({"error": "Você não pode rebaixar a si mesmo!"}), 400
+
+    db = get_db()
+    db.execute("UPDATE usuarios SET moderador = 0 WHERE id = ?", (usuario_id,))
+    db.commit()
+
+    return jsonify({"success": True, "message": "Moderador rebaixado a usuário comum!"})
+
+
 # Inicializa banco na primeira requisição
 with app.app_context():
     init_db()
