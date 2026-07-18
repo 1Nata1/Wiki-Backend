@@ -41,7 +41,13 @@ def serve_wiki_root():
 def serve_wiki_files(filename):
     return app.send_static_file(f"Wiki/{filename}")
 
-DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "db", "wiki.sqlite")
+# Tenta usar diretório persistente, fallback para local
+_persist_dir = "/data/coolify/apps/wiki-backend"
+if os.path.exists("/data/coolify"):
+    DB_DIR = _persist_dir
+else:
+    DB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "db")
+DB_PATH = os.path.join(DB_DIR, "wiki.sqlite")
 
 # Garante que o diretório db existe
 os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
